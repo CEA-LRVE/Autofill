@@ -27,7 +27,7 @@ class HDF5Dataset(Dataset):
 
     def __init__(self, hdf5_file, conversion_dict: Union[dict, str, Path] = None, metadata_filters=None, requested_metadata=None,
                  transformer_q=Pipeline(), transformer_y=Pipeline(),
-                 use_data_q: bool = True, sanity_check=True, show_progressbar: bool = True):
+                 use_data_q: bool = True, sanity_check=True, show_progressbar: bool = True, block:int=10_000):
         """
         Initialize the dataset and eagerly prepare metadata filters and transforms.
 
@@ -56,13 +56,35 @@ class HDF5Dataset(Dataset):
                 raise ValueError(f"Could not find 'data_q' or 'data_wavelength' in {hdf5_file}, {hdf.keys()}")
 
             temp_data_q = hdf[q_key]
-            first_q = temp_data_q[0]
-            
-            if self.sanity_check:
-                for i in tqdm(range(len(temp_data_q)), desc="Sanity checking H5", leave=False, disable=not self.show_progress, mininterval=1, miniters=min(10_000, max(1, len(temp_data_q) // 100))):
-                    if not np.array_equal(temp_data_q[i], first_q):
-                        raise AssertionError("All data_q/data_wavelength arrays must be identical")
-            self.data_q = first_q
+
+            if temp_data_q.ndim == 1:
+                # One shared q-vector for the whole HDF5 file.
+                self.data_q = temp_data_q[...]
+            elif temp_data_q.ndim >= 2:
+                # One q-vector per sample; require them to be identical.
+                first_q = temp_data_q[0]
+
+                if self.sanity_check:
+                    for start in tqdm(
+                        range(0, len(temp_data_q), block),
+                        desc="Sanity checking H5",
+                        leave=False,
+                        disable=not self.show_progress,
+                        mininterval=1,
+                        miniters=min(10_000, max(1, len(temp_data_q) // 100)),
+                    ):
+                        if not (temp_data_q[start:start + block] == first_q).all():
+                            raise AssertionError(
+                                "All data_q/data_wavelength arrays must be identical"
+                            )
+
+                self.data_q = first_q
+
+            else:
+                raise ValueError(
+                    f"Expected {q_key!r} to have at least one dimension, "
+                    f"got shape {temp_data_q.shape}"
+                )
 
             # --- Load intensity data ---
 
