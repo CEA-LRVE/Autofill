@@ -26,7 +26,7 @@ class HDF5Dataset(Dataset):
     """Dataset loader for single-spectrum experiments stored in HDF5 files."""
 
     def __init__(self, hdf5_file, conversion_dict: Union[dict, str, Path] = None, metadata_filters=None, requested_metadata=None,
-                 transformer_q=Pipeline(), transformer_y=Pipeline(),
+                 transformer_q=None, transformer_y=None,
                  use_data_q: bool = True, sanity_check=True, show_progressbar: bool = True, block:int=10_000):
         """
         Initialize the dataset and eagerly prepare metadata filters and transforms.
@@ -41,6 +41,11 @@ class HDF5Dataset(Dataset):
             transformer_y (Pipeline): Transformation pipeline for y values.
             use_data_q (bool): Whether to load and include data_q in batches. If False, returns None for data_q.
         """
+        if transformer_q is None:
+            transformer_q = Pipeline()
+
+        if transformer_y is None:
+            transformer_y = Pipeline()
         if requested_metadata is None:
             requested_metadata = []
         self.show_progress = show_progressbar
