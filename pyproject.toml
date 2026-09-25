@@ -3,7 +3,7 @@ name = "autofill"
 version = "0.1.0"
 description = "Toolbox for preprocessing, training and evaluating VAE/PairVAE models to complete SAXS and LES signals. See README.md for usage and documentation."
 readme = "README.md"
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.11,<3.14"
 license = { file = "LICENSE" }
 
 authors = [
