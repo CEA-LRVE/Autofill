@@ -13,12 +13,14 @@ docs/_build/
 *.lock
 docs/_build/
 *.ckpt
-
+*.zip
+deploy_bundle/
 mlruns/*
 saxs_to_saxs/*
 *.out
 les_to_saxs/
-
+wheelhouse/
+requirements-nogpu.txt
 .ipynb_checkpoints/
 Mat_Cext_Ag_cylinder
 config_locales/
@@ -27,3 +29,4 @@ config/*
 todo.md
 commands.md
 test.py
+src/autofill.egg-info/
