@@ -651,6 +651,9 @@ def run_inference(
 
         is_pair_model = False
 
+        input_domain = model_spec.value
+        output_domain = model_spec.value
+
     else:
         mode_map = {
             'les_to_saxs': ('les', 'saxs'),
