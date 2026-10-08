@@ -159,7 +159,10 @@ class ResVAE(nn.Module):
     def forward(self, x, metadata=None):
         mu, logvar = self.encode(x)
         logvar = torch.clamp(logvar, -10, 10)
-        z = self.reparameterize(mu, logvar)
+        if self.training:
+            z = self.reparameterize(mu, logvar)
+        else:
+            z = mu
         recon = self.decode(z)
 
         return {"recon": recon, "mu": mu, "logvar": logvar, "z": z}

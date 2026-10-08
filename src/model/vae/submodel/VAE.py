@@ -113,7 +113,10 @@ class VAE(nn.Module):
     # ---- FORWARD ----
     def forward(self, x, metadata=None):
         mu, logvar = self.encode(x)
-        z = self.reparameterize(mu, logvar)
+        if self.training:
+            z = self.reparameterize(mu, logvar)
+        else:
+            z = mu
         recon = self.decode(z)
 
         return {"recon": recon, "mu": mu, "logvar": logvar, "z": z}
