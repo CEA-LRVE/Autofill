@@ -190,10 +190,18 @@ class InferenceEngine:
                 
                 # add metadatas
                 for key, values in batch['metadata'].items():
-                    if key not in metadatas: 
-                        metadatas[key] = list(values) 
-                    else: 
-                        metadatas[key].extend(list(values))
+                    if isinstance(values, torch.Tensor):
+                        values = values.detach().cpu().tolist()
+                    elif isinstance(values, np.ndarray):
+                        values = values.tolist()
+
+                    if not isinstance(values, (list, tuple)):
+                        values = [values]
+
+                    if key not in metadatas:
+                        metadatas[key] = list(values)
+                    else:
+                        metadatas[key].extend(values)
 
         predictions_concat = np.concatenate(predictions, axis=0) if predictions else np.empty((0,))
         originals_concat = np.concatenate(originals, axis=0) if originals else np.empty((0,))
@@ -269,10 +277,18 @@ class InferenceEngine:
                 
                 # add metadatas
                 for key, values in batch['metadata'].items():
-                    if key not in metadatas: 
-                        metadatas[key] = list(values) 
-                    else: 
-                        metadatas[key].extend(list(values))
+                    if isinstance(values, torch.Tensor):
+                        values = values.detach().cpu().tolist()
+                    elif isinstance(values, np.ndarray):
+                        values = values.tolist()
+
+                    if not isinstance(values, (list, tuple)):
+                        values = [values]
+
+                    if key not in metadatas:
+                        metadatas[key] = list(values)
+                    else:
+                        metadatas[key].extend(values)
 
         predictions_concat = np.concatenate(predictions, axis=0) if predictions else np.empty((0,))
         originals_concat = np.concatenate(originals, axis=0) if originals else np.empty((0,))
